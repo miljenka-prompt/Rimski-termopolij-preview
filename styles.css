@@ -264,9 +264,37 @@ a:focus-visible {
 #diorama {
   position: absolute;
   inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
   touch-action: none;
+}
+
+.camera-feed {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  object-fit: cover;
+}
+
+body.camera-active .camera-feed {
+  display: block;
+}
+
+body.camera-active #diorama {
+  background: transparent !important;
+}
+
+body.camera-active .visual-stage {
+  background: transparent;
+}
+
+body.camera-active .visual-stage::after {
+  display: none;
 }
 
 .stage-topline {
