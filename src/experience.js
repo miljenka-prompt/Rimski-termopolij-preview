@@ -326,19 +326,21 @@ export class Experience {
 
   openNativeARViewer() {
     const modelUrl = "https://raw.githubusercontent.com/miljenka-prompt/Rimski-termopolij/eumachus-v2/assets/models/eumachus-human.glb";
-    const fallbackUrl = window.location.href;
     const params = new URLSearchParams({
       file: modelUrl,
       mode: "ar_preferred",
       title: "Eumachus",
       resizable: "true",
     });
-    const intent =
-      `intent://arvr.google.com/scene-viewer/1.0?${params.toString()}#Intent;` +
-      "scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;" +
-      `S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end;`;
+    const sceneViewerUrl = `https://arvr.google.com/scene-viewer/1.0?${params.toString()}`;
     this.showInstruction("Otvaram Android AR prikaz…", true);
-    window.location.href = intent;
+
+    // Use Google's HTTPS Scene Viewer entry point. This works more reliably
+    // than an intent:// navigation inside Android in-app/custom-tab browsers.
+    const opened = window.open(sceneViewerUrl, "_blank");
+    if (!opened) {
+      window.location.assign(sceneViewerUrl);
+    }
   }
 
   handleARState(state) {
