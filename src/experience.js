@@ -323,29 +323,6 @@ export class Experience {
       : "Otvori kameru s 3D rekonstrukcijom";
   }
 
-  needsNativeARViewer() {
-    return /Android/i.test(navigator.userAgent);
-  }
-
-  openNativeARViewer() {
-    const modelUrl = "https://miljenka-prompt.github.io/Rimski-termopolij/assets/models/eumachus-human.glb";
-    const params = new URLSearchParams({
-      file: modelUrl,
-      mode: "ar_preferred",
-      title: "Eumachus",
-      resizable: "true",
-    });
-    const sceneViewerUrl = `https://arvr.google.com/scene-viewer/1.0?${params.toString()}`;
-    this.showInstruction("Otvaram Android AR prikaz…", true);
-
-    // Use Google's HTTPS Scene Viewer entry point. This works more reliably
-    // than an intent:// navigation inside Android in-app/custom-tab browsers.
-    const opened = window.open(sceneViewerUrl, "_blank");
-    if (!opened) {
-      window.location.assign(sceneViewerUrl);
-    }
-  }
-
   handleARState(state) {
     if (state === this.lastARState && state !== "placed") return;
     this.lastARState = state;
