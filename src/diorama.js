@@ -484,6 +484,8 @@ export class Diorama {
     this.arPlaced = false;
     this.arSupported = false;
     this.arSupportResolved = false;
+    this.cameraStream = null;
+    this.cameraFallbackActive = false;
     this.currentScene = null;
   }
 
@@ -602,6 +604,46 @@ export class Diorama {
 
     this.root.rotation.y = -0.12;
     this.root.scale.setScalar(this.arSession ? 0.24 : 1);
+  }
+
+  async startCameraFallback() {
+    const video = document.querySelector("#cameraFeed");
+    if (!video || !navigator.mediaDevices?.getUserMedia) return false;
+    try {
+      this.cameraStream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: { ideal: "environment" } },
+      });
+      video.srcObject = this.cameraStream;
+      await video.play();
+      this.cameraFallbackActive = true;
+      this.controls.enabled = true;
+      this.scene.background = null;
+      this.scene.fog = null;
+      document.body.classList.add("camera-active");
+      this.callbacks.onARState?.("camera");
+      return true;
+    } catch (error) {
+      console.warn("Camera fallback could not start.", error);
+      this.cameraStream?.getTracks().forEach((track) => track.stop());
+      this.cameraStream = null;
+      return false;
+    }
+  }
+
+  stopCameraFallback() {
+    this.cameraStream?.getTracks().forEach((track) => track.stop());
+    this.cameraStream = null;
+    const video = document.querySelector("#cameraFeed");
+    if (video) {
+      video.pause();
+      video.srcObject = null;
+    }
+    this.cameraFallbackActive = false;
+    document.body.classList.remove("camera-active");
+    this.scene.background = new THREE.Color(0x11171a);
+    this.scene.fog = new THREE.FogExp2(0x11171a, 0.042);
+    this.callbacks.onARState?.("ended");
   }
 
   async startAR() {
