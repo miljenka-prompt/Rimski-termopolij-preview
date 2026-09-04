@@ -304,7 +304,10 @@ export class Experience {
       this.chronovisor.hide();
       this.elements.toggleView.querySelector("span").textContent = this.copy.ui.chronovisor;
     }
-    await this.diorama.startAR();
+    const started = await this.diorama.startAR();
+    if (!started && this.needsNativeARViewer()) {
+      this.openNativeARViewer();
+    }
   }
 
   handleARSupport(supported) {
