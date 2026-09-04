@@ -325,7 +325,7 @@ export class Experience {
   }
 
   openNativeARViewer() {
-    const modelUrl = "https://raw.githubusercontent.com/miljenka-prompt/Rimski-termopolij/eumachus-v2/assets/models/eumachus-human.glb";
+    const modelUrl = "https://miljenka-prompt.github.io/Rimski-termopolij/assets/models/eumachus-human.glb";
     const params = new URLSearchParams({
       file: modelUrl,
       mode: "ar_preferred",
