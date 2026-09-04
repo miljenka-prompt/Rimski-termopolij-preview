@@ -287,6 +287,10 @@ export class Experience {
       await this.diorama.stopAR();
       return;
     }
+    if (this.diorama.cameraFallbackActive) {
+      this.diorama.stopCameraFallback();
+      return;
+    }
     if (this.diorama.arSupportResolved && !this.diorama.arSupported && this.needsNativeARViewer()) {
       this.openNativeARViewer();
       return;
@@ -305,8 +309,11 @@ export class Experience {
       this.elements.toggleView.querySelector("span").textContent = this.copy.ui.chronovisor;
     }
     const started = await this.diorama.startAR();
-    if (!started && this.needsNativeARViewer()) {
-      this.openNativeARViewer();
+    if (!started) {
+      const cameraStarted = await this.diorama.startCameraFallback();
+      if (!cameraStarted && this.needsNativeARViewer()) {
+        this.openNativeARViewer();
+      }
     }
   }
 
@@ -356,6 +363,9 @@ export class Experience {
       this.showInstruction(this.copy.ui.tapToPlace, true);
     } else if (state === "placed") {
       this.showInstruction(this.copy.ui.placed);
+    } else if (state === "camera") {
+      this.elements.enterAR.querySelector("span").textContent = "Zatvori kameru";
+      this.showInstruction("Kamera je aktivna. 3D rekonstrukcija je prikazana preko stvarnog prostora.", true);
     } else if (state === "failed") {
       this.elements.enterAR.querySelector("span").textContent = this.copy.ui.placeInSpace;
       this.showInstruction(this.copy.ui.arFailed);
