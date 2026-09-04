@@ -291,16 +291,14 @@ export class Experience {
       this.diorama.stopCameraFallback();
       return;
     }
-    if (this.diorama.arSupportResolved && !this.diorama.arSupported && this.needsNativeARViewer()) {
-      this.openNativeARViewer();
+    if (this.diorama.arSupportResolved && !this.diorama.arSupported) {
+      const cameraStarted = await this.diorama.startCameraFallback();
+      if (!cameraStarted) this.showInstruction(this.copy.ui.unsupportedAR);
       return;
     }
     if (!navigator.xr || typeof navigator.xr.requestSession !== "function") {
-      if (this.needsNativeARViewer()) {
-        this.openNativeARViewer();
-      } else {
-        this.showInstruction(this.copy.ui.unsupportedAR);
-      }
+      const cameraStarted = await this.diorama.startCameraFallback();
+      if (!cameraStarted) this.showInstruction(this.copy.ui.unsupportedAR);
       return;
     }
     if (this.viewpoint === "chronovisor") {
@@ -311,23 +309,18 @@ export class Experience {
     const started = await this.diorama.startAR();
     if (!started) {
       const cameraStarted = await this.diorama.startCameraFallback();
-      if (!cameraStarted && this.needsNativeARViewer()) {
-        this.openNativeARViewer();
+      if (!cameraStarted) {
+        this.showInstruction(this.copy.ui.unsupportedAR);
       }
     }
   }
 
   handleARSupport(supported) {
-    const nativeFallback = !supported && this.needsNativeARViewer();
     this.elements.enterAR.classList.toggle("is-fallback", !supported);
-    this.elements.enterAR.querySelector("span").textContent = nativeFallback
-      ? this.copy.ui.placeInSpace
-      : this.copy.ui.placeInSpace;
+    this.elements.enterAR.querySelector("span").textContent = this.copy.ui.placeInSpace;
     this.elements.enterAR.title = supported
       ? ""
-      : nativeFallback
-        ? "Otvori Android AR prikaz"
-        : this.copy.ui.unsupportedAR;
+      : "Otvori kameru s 3D rekonstrukcijom";
   }
 
   needsNativeARViewer() {
